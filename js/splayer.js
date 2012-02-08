@@ -1,11 +1,19 @@
 function show_me_owls() {
 	var parental = {
+			/* snag our wrapping UL */
 			dom_node: document.querySelector(arguments[0]),
+			
+			/* the list has three states we should track: is it expanded? is it hovered? is it animating? */
 			expanded: false,
 			hovered: false,
 			animating: false,
+			
 			height: 0,
+			
+			/* setinterval variable for animation control */
 			anim_intvl: undefined,
+			
+			/* functions for the UL */
 			vertically_center: function () {
 				for(item in children) {
 					children[item].dom_node.style.top = ((this.height - children[item].height) / 2) + "px";
@@ -14,35 +22,36 @@ function show_me_owls() {
 			apply_styles: function () {
 				this.dom_node.style.cssText = "padding:0;margin:0;list-style:none;position:relative;height:" + this.height + "px;";
 			},
-			hover: function () {
-				for(item in children) {
-					var left_int = parseInt(children[item].dom_node.style.left.slice(0, -2), 10);
-					if (left_int < children[item].stop_position) {
-						children[item].dom_node.style.left = (left_int + 2) + "px";
-						parental.animating = true;
-					}
-					else {
-						parental.animating = false;
-					}
-				}
+			anim_intvl_check: function () {
 				if (!parental.animating) {
 					window.clearInterval(parental.anim_intvl);
 				}
 			},
-			hover_out: function () {
+			hover: function () {
 				for(item in children) {
-					var left_int = parseInt(children[item].dom_node.style.left.slice(0, -2), 10);
-					if (0 < left_int) {
-						children[item].dom_node.style.left = (left_int - 5) + "px";
+					if (children[item].left < children[item].stop_position) {
+						children[item].left += 2;
+						children[item].dom_node.style.left = children[item].left + "px";
 						parental.animating = true;
 					}
 					else {
 						parental.animating = false;
 					}
 				}
-				if (!parental.animating) {
-					window.clearInterval(parental.anim_intvl);
+				this.anim_intvl_check();
+			},
+			hover_out: function () {
+				for(item in children) {
+					if (0 < children[item].left) {
+						children[item].left -= 5;
+						children[item].dom_node.style.left = children[item].left + "px";
+						parental.animating = true;
+					}
+					else {
+						parental.animating = false;
+					}
 				}
+				this.anim_intvl_check();
 			},
 			expand: function () {
 				for(item in children) {
@@ -52,12 +61,10 @@ function show_me_owls() {
 						parental.animating = true;
 					}
 					else {
-						parental.animating = false;
+						parental.animating = false;					
 					}
 				}
-				if (!parental.animating) {
-					window.clearInterval(parental.anim_intvl);
-				}
+				this.anim_intvl_check();
 			},
 			close: function () {
 				for(item in children) {
@@ -70,9 +77,7 @@ function show_me_owls() {
 						parental.animating = false;
 					}
 				}
-				if (!parental.animating) {
-					window.clearInterval(parental.anim_intvl);
-				}
+				this.anim_intvl_check();
 			}
 		},
 		container = parental.dom_node.parentElement,
@@ -101,7 +106,7 @@ function show_me_owls() {
 	}
 	
 	function click_in(e) {
-		if (!parental.expanded) {
+		if (!parental.expanded && !parental.animating) {
 			e.stopPropagation();
 			parental.expanded = true;
 			parental.animating = true;
@@ -140,7 +145,7 @@ function show_me_owls() {
 				parent: child_lis[i],
 				height: image.offsetHeight,
 				width: image.offsetWidth,
-				left:0,
+				left: 0,
 				stop_position: i * 10,
 				open_position: full_offset
 			};
