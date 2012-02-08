@@ -9,6 +9,7 @@ function show_me_owls() {
 			animating: false,
 			
 			height: 0,
+			offsets: {},
 			
 			/* setinterval variable for animation control */
 			anim_intvl: undefined,
@@ -29,7 +30,7 @@ function show_me_owls() {
 			},
 			hover: function () {
 				for(item in children) {
-					if (children[item].left < children[item].stop_position) {
+					if (children[item].left < parental.offsets[item].stop_position) {
 						children[item].left += 2;
 						children[item].dom_node.style.left = children[item].left + "px";
 						parental.animating = true;
@@ -55,8 +56,8 @@ function show_me_owls() {
 			},
 			expand: function () {
 				for(item in children) {
-					if (children[item].left < children[item].open_position) {
-						children[item].left += Math.floor(children[item].open_position / 10);
+					if (children[item].left < parental.offsets[item].open_position) {
+						children[item].left += Math.floor(parental.offsets[item].open_position / 10);
 						children[item].dom_node.style.left = children[item].left + "px";
 						parental.animating = true;
 					}
@@ -82,7 +83,7 @@ function show_me_owls() {
 		},
 		container = parental.dom_node.parentElement,
 		child_lis = parental.dom_node.getElementsByTagName("li"),
-		children = {};
+		children = new Array();
 	
 	function roll_in(e) {
 		if (!parental.expanded && !parental.hovered && !parental.animating) {
@@ -131,6 +132,7 @@ function show_me_owls() {
 			Build out our list objects
 		*/
 		var full_offset = 10;
+		
 		for (var i = 0; i < child_lis.length; i++) {
 			var image = child_lis[i].getElementsByTagName("img")[0];
 			
@@ -145,13 +147,20 @@ function show_me_owls() {
 				parent: child_lis[i],
 				height: image.offsetHeight,
 				width: image.offsetWidth,
+				area: image.offsetHeight * image.offsetWidth,
 				left: 0,
+				z_index: 9999 - Math.floor((image.offsetHeight * image.offsetWidth) / 1000),
 				stop_position: i * 10,
 				open_position: full_offset
 			};
 			
-			full_offset += (children[i].width + 10);
+			parental.offsets[i] = {
+				stop_position: i * 10,
+				open_position: full_offset
+			};
+			children[i].dom_node.style.cssText += "z-index:" + children[i].z_index + ";";
 			
+			full_offset += (children[i].width + 10);
 			
 			/*
 				Attach handlers to the list elements
@@ -160,6 +169,19 @@ function show_me_owls() {
 			image.addEventListener("click", click_in, false);
 			image.addEventListener("mouseover", roll_in, false);
 		}
+		
+		/*
+			Sort children by z-index so they animate in the appropriate order
+		*/
+		children.sort(function (a, b) {
+			if (a.z_index < b.z_index) {
+				return 1;
+			}
+			if (a.z_index > b.z_index) {
+				return -1;
+			}
+			return 0;
+		});
 		
 		parental.apply_styles();
 		parental.vertically_center();
