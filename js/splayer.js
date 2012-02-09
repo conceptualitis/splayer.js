@@ -98,30 +98,27 @@ function splayer() {
 	
 	function roll_out (e) {
 		var rel_targ = e.relatedTarget || e.toElement,
-			rel_parent = rel_targ.parentElement;
+			rel_parent = rel_targ.parentElement,
+			on_new_list = false;
 			
-		if (!parental.expanded && !parental.animating && ("LI" === rel_targ.nodeName || "IMG" === rel_targ.nodeName)) {
-			while ("UL" !== rel_parent.nodeName) {
-				rel_parent = rel_parent.parentElement;
+		while ("BODY" !== rel_parent.nodeName) {
+			if ("UL" === rel_parent.nodeName) {
+				if (rel_parent !== parental.dom_node) {
+					on_new_list = true;
+				}
+				break;
 			}
+			rel_parent = rel_parent.parentElement;
 		}
 		
-		if (!parental.expanded && !parental.animating && (("LI" !== rel_targ.nodeName && "IMG" !== rel_targ.nodeName) || (rel_parent !== parental.dom_node))) {
+		if (!parental.expanded && !parental.animating && (("LI" !== rel_targ.nodeName && "IMG" !== rel_targ.nodeName) || on_new_list)) {
 			parental.dom_node.style.zIndex = "auto";
 			parental.animating = true;
 			parental.hovered = false;
 			parental.anim_intvl = setInterval(function () {
 				parental.hover_out();
 			}, 5);
-		}/*
-		else if (!parental.expanded && ("LI" === rel_targ.nodeName || "IMG" === rel_targ.nodeName)) {
-			while ("UL" !== rel_parent.nodeName) {
-				rel_parent = rel_parent.parentElement;
-			}
-			if (rel_parent !== parental.dom_node) {
-				console.log('fff');
-			}
-		}*/
+		}
 	}
 	
 	function click_in(e) {
