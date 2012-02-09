@@ -20,10 +20,33 @@ function splayer() {
 					children[item].dom_node.style.top = ((this.height - children[item].height) / 2) + "px";
 				}
 			},
+			horizontally_center: function () {
+				for(item in children) {
+					children[item].origin = Math.floor((this.width - children[item].width) / 2);
+					children[item].left = children[item].origin;
+					children[item].stop_position += children[item].origin;
+					
+					var item_int = parseInt(item, 10)
+					if (0 === item_int) {
+						children[item].open_position += children[item].origin;
+					}
+					else {
+						children[item].open_position = children[(item_int - 1)].width + 10 + children[(item_int - 1)].open_position;
+					}
+					children[item].dom_node.style.left = children[item].origin + "px";
+				}
+			},
 			apply_styles: function () {
 				this.dom_node.style.cssText = "padding:0;margin:0 10px 10px 0;list-style:none;position:relative;height:" + this.height + "px;width:" + this.width + "px;";
 			},
 			anim_intvl_check: function () {
+				parental.animating = false;
+				for(item in children) {
+					if(children[item].animating) {
+						parental.animating = true;
+						break;
+					}
+				}
 				if (!parental.animating) {
 					window.clearInterval(parental.anim_intvl);
 				}
@@ -33,23 +56,25 @@ function splayer() {
 					if (children[item].left < children[item].stop_position) {
 						children[item].left += 2;
 						children[item].dom_node.style.left = children[item].left + "px";
-						parental.animating = true;
+						children[item].animating = true;
 					}
 					else {
-						parental.animating = false;
+						children[item].animating = false;
 					}
 				}
 				this.anim_intvl_check();
 			},
 			hover_out: function () {
 				for(item in children) {
-					if (0 < children[item].left) {
+					if (children[item].origin < children[item].left) {
 						children[item].left -= 5;
 						children[item].dom_node.style.left = children[item].left + "px";
-						parental.animating = true;
+						children[item].animating = true;
 					}
 					else {
-						parental.animating = false;
+						children[item].left = children[item].origin;
+						children[item].dom_node.style.left = children[item].left + "px";
+						children[item].animating = false;
 					}
 				}
 				this.anim_intvl_check();
@@ -59,23 +84,27 @@ function splayer() {
 					if (children[item].left < children[item].open_position) {
 						children[item].left += Math.floor(children[item].open_position / 10);
 						children[item].dom_node.style.left = children[item].left + "px";
-						parental.animating = true;
+						children[item].animating = true;
 					}
 					else {
-						parental.animating = false;					
+						children[item].left = children[item].open_position;
+						children[item].dom_node.style.left = children[item].open_position + "px";
+						children[item].animating = false;
 					}
 				}
 				this.anim_intvl_check();
 			},
 			close: function () {
 				for(item in children) {
-					if (0 < children[item].left) {
+					if (children[item].origin < children[item].left) {
 						children[item].left = Math.floor(children[item].left - (children[item].left / 10));
 						children[item].dom_node.style.left = children[item].left + "px";
-						parental.animating = true;
+						children[item].animating = true;
 					}
 					else {
-						parental.animating = false;
+						children[item].left = children[item].origin;
+						children[item].dom_node.style.left = children[item].left + "px";
+						children[item].animating = false;
 					}
 				}
 				this.anim_intvl_check();
@@ -186,6 +215,8 @@ function splayer() {
 				area: images[i].offsetHeight * images[i].offsetWidth,
 				left: 0,
 				z_index: 9999 - Math.floor((images[i].offsetHeight * images[i].offsetWidth) / 1000),
+				animating: 0,
+				start_positoin: 0,
 				stop_position: i * 10,
 				open_position: full_offset
 			};
@@ -208,6 +239,7 @@ function splayer() {
 		
 		parental.apply_styles();
 		parental.vertically_center();
+		parental.horizontally_center();
 		
 		//parental.dom_node.addEventListener("mouseout", roll_out, false);
 		parental.dom_node.addEventListener("click", click_out, false);
