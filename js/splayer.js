@@ -1,4 +1,4 @@
-function show_me_owls() {
+function splayer() {
 	var parental = {
 			/* snag our wrapping UL */
 			dom_node: document.querySelector(arguments[0]),
@@ -9,7 +9,7 @@ function show_me_owls() {
 			animating: false,
 			
 			height: 0,
-			offsets: {},
+			width: 0,
 			
 			/* setinterval variable for animation control */
 			anim_intvl: undefined,
@@ -21,7 +21,7 @@ function show_me_owls() {
 				}
 			},
 			apply_styles: function () {
-				this.dom_node.style.cssText = "padding:0;margin:0;list-style:none;position:relative;height:" + this.height + "px;";
+				this.dom_node.style.cssText = "padding:0;margin:0 10px 10px 0;list-style:none;position:relative;height:" + this.height + "px;width:" + this.width + "px;";
 			},
 			anim_intvl_check: function () {
 				if (!parental.animating) {
@@ -30,7 +30,7 @@ function show_me_owls() {
 			},
 			hover: function () {
 				for(item in children) {
-					if (children[item].left < parental.offsets[item].stop_position) {
+					if (children[item].left < children[item].stop_position) {
 						children[item].left += 2;
 						children[item].dom_node.style.left = children[item].left + "px";
 						parental.animating = true;
@@ -56,8 +56,8 @@ function show_me_owls() {
 			},
 			expand: function () {
 				for(item in children) {
-					if (children[item].left < parental.offsets[item].open_position) {
-						children[item].left += Math.floor(parental.offsets[item].open_position / 10);
+					if (children[item].left < children[item].open_position) {
+						children[item].left += Math.floor(children[item].open_position / 10);
 						children[item].dom_node.style.left = children[item].left + "px";
 						parental.animating = true;
 					}
@@ -87,6 +87,7 @@ function show_me_owls() {
 	
 	function roll_in(e) {
 		if (!parental.expanded && !parental.hovered && !parental.animating) {
+			parental.dom_node.style.zIndex = "9999";
 			parental.animating = true;
 			parental.hovered = true;
 			parental.anim_intvl = setInterval(function () {
@@ -98,6 +99,7 @@ function show_me_owls() {
 	function roll_out (e) {
 		var rel_targ = e.relatedTarget || e.toElement;
 		if (!parental.expanded && !parental.animating && "LI" !== rel_targ.nodeName && "IMG" !== rel_targ.nodeName ) {
+			parental.dom_node.style.zIndex = "auto";
 			parental.animating = true;
 			parental.hovered = false;
 			parental.anim_intvl = setInterval(function () {
@@ -109,6 +111,7 @@ function show_me_owls() {
 	function click_in(e) {
 		if (!parental.expanded && !parental.animating) {
 			e.stopPropagation();
+			parental.dom_node.style.zIndex = "9999";
 			parental.expanded = true;
 			parental.animating = true;
 			parental.anim_intvl = setInterval(function () {
@@ -128,60 +131,67 @@ function show_me_owls() {
 	}
 	
 	function init() {
-		/*
-			Build out our list objects
-		*/
-		var full_offset = 10;
+	
+		var images = [],
+			full_offset = 10;
 		
-		for (var i = 0; i < child_lis.length; i++) {
-			var image = child_lis[i].getElementsByTagName("img")[0];
-			
-			child_lis[i].style.cssText = "padding:0;margin:0;list-style:none;";
-			image.style.cssText = "position:absolute;left:0;cursor:pointer;box-shadow:0 0 5px rgba(0,0,0,.25);background:#fff;padding:5px;";
-			
-			if (parental.height < image.offsetHeight) {
-				parental.height = image.offsetHeight;
+		/*
+			Extract our images into an array for sorting
+		*/
+		for (var x = 0; x < child_lis.length; x++) {
+			images[x] = child_lis[x].getElementsByTagName("img")[0];
+		}
+		
+		/*
+			Sort children by future z-index so they'll animate in the appropriate order
+		*/
+		images.sort(function (a, b) {
+			var a_z_index = 9999 - Math.floor((a.offsetHeight * a.offsetWidth) / 1000),
+				b_z_index = 9999 - Math.floor((b.offsetHeight * b.offsetWidth) / 1000);
+			if (a_z_index < b_z_index) {
+				return 1;
 			}
+			if (a_z_index > b_z_index) {
+				return -1;
+			}
+			/*
+				If the z-indexes are the same we actually want to return 1 to ensure the
+				image uses the correct offset
+			*/
+			return 1;
+		});
+		
+		for (var i = 0; i < images.length; i++) {
+			/*
+				Build out our image objects
+			*/
 			children[i] = {
-				dom_node: image,
-				parent: child_lis[i],
-				height: image.offsetHeight,
-				width: image.offsetWidth,
-				area: image.offsetHeight * image.offsetWidth,
+				dom_node: images[i],
+				parent: images[i].parentElement,
+				height: images[i].offsetHeight + 10,
+				width: images[i].offsetWidth + 10,
+				area: images[i].offsetHeight * images[i].offsetWidth,
 				left: 0,
-				z_index: 9999 - Math.floor((image.offsetHeight * image.offsetWidth) / 1000),
+				z_index: 9999 - Math.floor((images[i].offsetHeight * images[i].offsetWidth) / 1000),
 				stop_position: i * 10,
 				open_position: full_offset
 			};
 			
-			parental.offsets[i] = {
-				stop_position: i * 10,
-				open_position: full_offset
-			};
-			children[i].dom_node.style.cssText += "z-index:" + children[i].z_index + ";";
+			parental.height = (parental.height < children[i].height) ? children[i].height : parental.height;
+			parental.width = (parental.width < children[i].width) ? children[i].width : parental.width;
+
+			children[i].parent.style.cssText = "padding:0;margin:0;list-style:none;";
+			children[i].dom_node.style.cssText = "position:absolute;left:0;cursor:pointer;box-shadow:0 0 5px rgba(0,0,0,.25);background:#fff;padding:5px;z-index:" + children[i].z_index + ";";
 			
 			full_offset += (children[i].width + 10);
 			
 			/*
-				Attach handlers to the list elements
+				Attach handlers to the images
 			*/
-			image.addEventListener("mouseout", roll_out, false);
-			image.addEventListener("click", click_in, false);
-			image.addEventListener("mouseover", roll_in, false);
+			children[i].dom_node.addEventListener("mouseout", roll_out, false);
+			children[i].dom_node.addEventListener("click", click_in, false);
+			children[i].dom_node.addEventListener("mouseover", roll_in, false);
 		}
-		
-		/*
-			Sort children by z-index so they animate in the appropriate order
-		*/
-		children.sort(function (a, b) {
-			if (a.z_index < b.z_index) {
-				return 1;
-			}
-			if (a.z_index > b.z_index) {
-				return -1;
-			}
-			return 0;
-		});
 		
 		parental.apply_styles();
 		parental.vertically_center();

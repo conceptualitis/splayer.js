@@ -7,18 +7,42 @@
 <body>
 	<h1 id="page-title">Splayer.js</h1>
 	
-	<ul id="owl-bucket">
-		<li><img src="assets/owl1.jpg" alt="hoot"></li>
-		<li><img src="assets/owl2.jpg" alt="hoot"></li>
-		<li><img src="assets/owl3.jpg" alt="hoot"></li>
-		<li><img src="assets/owl4.jpg" alt="hoot"></li>
-		<li><img src="assets/owl5.jpg" alt="hoot"></li>
-		<li><img src="assets/owl6.jpg" alt="hoot"></li>
-	</ul>
+	<div id="wrapper">
+		<ul id="owl-bucket">
+			<li><img src="assets/owl1.jpg" alt="hoot"></li>
+			<li><img src="assets/owl4.jpg" alt="hoot"></li>			
+			<li><img src="assets/owl2.jpg" alt="hoot"></li>
+			<li><img src="assets/owl3.jpg" alt="hoot"></li>
+		</ul>
+		
+		<ul id="cat-bucket">
+			<li><img src="assets/cat1.jpg" alt="mew"></li>
+			<li><img src="assets/cat2.jpg" alt="mew"></li>
+			<li><img src="assets/cat3.jpg" alt="mew"></li>
+			<li><img src="assets/cat4.jpg" alt="mew"></li>
+		</ul>
+		
+		<ul id="horse-bucket">
+			<li><img src="assets/horse1.jpg" alt="neigh"></li>
+			<li><img src="assets/horse2.jpg" alt="neigh"></li>
+			<li><img src="assets/horse3.jpg" alt="neigh"></li>
+			<li><img src="assets/horse4.jpg" alt="neigh"></li>
+		</ul>
+		
+		<ul id="lizard-bucket">
+			<li><img src="assets/lizard1.jpg" alt="ssssSSss"></li>
+			<li><img src="assets/lizard2.jpg" alt="ssssSSss"></li>
+			<li><img src="assets/lizard3.jpg" alt="ssssSSss"></li>
+			<li><img src="assets/lizard4.jpg" alt="ssssSSss"></li>
+		</ul>
+	</div>
 
 	<script type="text/javascript" src="js/splayer.js"></script>
 	<script type="text/javascript">
-		var owls = new show_me_owls("#owl-bucket");
+		var owls = new splayer("#owl-bucket");
+		var cats = new splayer("#cat-bucket");
+		var horses = new splayer("#horse-bucket");
+		var lizards = new splayer("#lizard-bucket");
 	</script>
 </body>
 </html>
