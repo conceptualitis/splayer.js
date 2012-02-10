@@ -2,6 +2,8 @@ function splayer() {
 	var parental = {
 			/* snag our wrapping UL */
 			dom_node: document.querySelector(arguments[0]),
+			mask: document.createElement("li"),
+			last_key: 0,
 			
 			/* the list has three states we should track: is it expanded? is it hovered? is it animating? */
 			expanded: false,
@@ -10,6 +12,10 @@ function splayer() {
 			
 			height: 0,
 			width: 0,
+      		win_height: document.documentElement.offsetHeight,
+			win_width: window.innerWidth,      		
+			hover_left: 9999,
+			hover_width: 0,
 			
 			/* setinterval variable for animation control */
 			anim_intvl: undefined,
@@ -30,10 +36,44 @@ function splayer() {
 						children[item].open_position = children[(item_int - 1)].width + 10 + children[(item_int - 1)].open_position;
 					}
 					children[item].dom_node.style.left = children[item].origin + "px";
+					
+					parental.hover_left = (parental.hover_left > children[item].stop_position) ? children[item].stop_position : parental.hover_left;
+					parental.hover_width = (parental.hover_width < (children[item].stop_position + children[item].width - parental.hover_left)) ? (children[item].stop_position + children[item].width - parental.hover_left) : parental.hover_width;
 				}
 			},
 			apply_styles: function () {
 				this.dom_node.style.cssText = "padding:0;margin:0 10px 10px 0;list-style:none;position:relative;height:" + this.height + "px;width:" + this.width + "px;";
+			},
+			create_mask: function () {
+				this.dom_node.appendChild(this.mask);
+				this.mask.style.cssText = "opacity:0;border-radius:5px;background:rgba(0,0,0,.5);padding:0;margin:0;list-style:none;position:absolute;height:" + this.height + "px;width:" + this.width + "px;top:0;left:0;"
+				this.mask.addEventListener("mouseout", roll_out, false);
+			},
+			set_mask: function () {
+				parental.mask.style.left = (parental.hover_left - 10) + "px";
+				parental.mask.style.top = "-10px";
+				parental.mask.style.width = (parental.hover_width + 20) + "px";
+				parental.mask.style.height = (parental.height + 20) + "px";
+			},
+			unset_mask: function () {
+				parental.dom_node.style.position = "relative";
+				parental.mask.style.zIndex = "auto";
+				parental.mask.style.opacity = "0";
+				parental.mask.style.left = "0px";
+				parental.mask.style.top = "0px";
+				parental.mask.style.width = parental.width + "px";
+				parental.mask.style.height = parental.height + "px";
+			},
+			full_mask: function () {
+				console.log(parental.win_height);
+				parental.dom_node.style.position = "static";
+				parental.mask.style.zIndex = 9998 - parental.last_key;
+				parental.mask.style.top = "10px";
+				parental.mask.style.right = "10px";
+				parental.mask.style.left = "10px";
+				parental.mask.style.bottom = "10px";
+				parental.mask.style.width = "auto";
+				parental.mask.style.height = parental.win_height + "px";
 			},
 			anim_intvl_check: function () {
 				parental.animating = false;
@@ -45,9 +85,14 @@ function splayer() {
 				}
 				if (!parental.animating) {
 					window.clearInterval(parental.anim_intvl);
+					if ("0" == parental.mask.style.opacity) {
+						parental.unset_mask();
+					}
 				}
 			},
 			hover: function () {
+				var curr_opacity = parental.mask.style.opacity - 0;
+					addt_opacity = curr_opacity + .1;
 				for(item in children) {
 					if (children[item].left < children[item].stop_position) {
 						children[item].left += 2;
@@ -58,9 +103,14 @@ function splayer() {
 						children[item].animating = false;
 					}
 				}
+				if (.8 >= addt_opacity) {
+					parental.mask.style.opacity = addt_opacity;
+				}
 				this.anim_intvl_check();
 			},
 			hover_out: function () {
+				var curr_opacity = parental.mask.style.opacity - 0;
+					addt_opacity = curr_opacity - .2;
 				for(item in children) {
 					if (children[item].origin < children[item].left) {
 						children[item].left -= 5;
@@ -73,10 +123,14 @@ function splayer() {
 						children[item].animating = false;
 					}
 				}
+				if (0 <= addt_opacity) {
+					parental.mask.style.opacity = addt_opacity;
+				}
 				this.anim_intvl_check();
 			},
 			expand: function () {
 				for(item in children) {
+					children[item].dom_node.style.zIndex = 9999 - parseInt(item, 10);
 					if (children[item].left < children[item].open_position) {
 						children[item].left += Math.floor(children[item].open_position / 10);
 						children[item].dom_node.style.left = children[item].left + "px";
@@ -91,7 +145,11 @@ function splayer() {
 				this.anim_intvl_check();
 			},
 			close: function () {
+				var curr_opacity = parental.mask.style.opacity - 0;
+					addt_opacity = curr_opacity - .2;
+				children[item].dom_node.style.zIndex = children[item].z_index;
 				for(item in children) {
+				
 					if (children[item].origin < children[item].left) {
 						children[item].left = Math.floor(children[item].left - (children[item].left / 10));
 						children[item].dom_node.style.left = children[item].left + "px";
@@ -102,6 +160,9 @@ function splayer() {
 						children[item].dom_node.style.left = children[item].left + "px";
 						children[item].animating = false;
 					}
+				}
+				if (0 <= addt_opacity) {
+					parental.mask.style.opacity = addt_opacity;
 				}
 				this.anim_intvl_check();
 			}
@@ -115,6 +176,7 @@ function splayer() {
 			parental.dom_node.style.zIndex = "9999";
 			parental.animating = true;
 			parental.hovered = true;
+			parental.set_mask();
 			parental.anim_intvl = setInterval(function () {
 				parental.hover();
 			}, 5);
@@ -148,6 +210,7 @@ function splayer() {
 	
 	function click_in(e) {
 		if (!parental.expanded && !parental.animating) {
+			parental.full_mask();
 			e.stopPropagation();
 			parental.dom_node.style.zIndex = "9999";
 			parental.expanded = true;
@@ -212,13 +275,14 @@ function splayer() {
 				left: 0,
 				z_index: 9999 - Math.floor((images[i].offsetHeight * images[i].offsetWidth) / 1000),
 				animating: 0,
-				start_positoin: 0,
+				start_position: 0,
 				stop_position: i * 10,
 				open_position: full_offset
 			};
 			
 			parental.height = (parental.height < children[i].height) ? children[i].height : parental.height;
 			parental.width = (parental.width < children[i].width) ? children[i].width : parental.width;
+			parental.last_key = i;
 
 			children[i].parent.style.cssText = "padding:0;margin:0;list-style:none;";
 			children[i].dom_node.style.cssText = "position:absolute;left:0;cursor:pointer;box-shadow:0 0 5px rgba(0,0,0,.25);background:#fff;padding:5px;z-index:" + children[i].z_index + ";";
@@ -235,8 +299,7 @@ function splayer() {
 		
 		parental.apply_styles();
 		parental.center();
-		//parental.vertically_center();
-		//parental.horizontally_center();
+		parental.create_mask();
 		
 		//parental.dom_node.addEventListener("mouseout", roll_out, false);
 		parental.dom_node.addEventListener("click", click_out, false);
