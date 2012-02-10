@@ -15,13 +15,9 @@ function splayer() {
 			anim_intvl: undefined,
 			
 			/* functions for the UL */
-			vertically_center: function () {
+			center: function () {
 				for(item in children) {
 					children[item].dom_node.style.top = ((this.height - children[item].height) / 2) + "px";
-				}
-			},
-			horizontally_center: function () {
-				for(item in children) {
 					children[item].origin = Math.floor((this.width - children[item].width) / 2);
 					children[item].left = children[item].origin;
 					children[item].stop_position += children[item].origin;
@@ -238,8 +234,9 @@ function splayer() {
 		}
 		
 		parental.apply_styles();
-		parental.vertically_center();
-		parental.horizontally_center();
+		parental.center();
+		//parental.vertically_center();
+		//parental.horizontally_center();
 		
 		//parental.dom_node.addEventListener("mouseout", roll_out, false);
 		parental.dom_node.addEventListener("click", click_out, false);
