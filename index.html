@@ -39,10 +39,12 @@
 
 	<script type="text/javascript" src="js/splayer.js"></script>
 	<script type="text/javascript">
-		var owls = new splayer("#owl-bucket");
-		var cats = new splayer("#cat-bucket");
-		var horses = new splayer("#horse-bucket");
-		var lizards = new splayer("#lizard-bucket");
+		document.body.onload = function () {
+			var owls = new splayer("#owl-bucket");
+			var cats = new splayer("#cat-bucket");
+			var horses = new splayer("#horse-bucket");
+			var lizards = new splayer("#lizard-bucket");
+		}
 	</script>
 </body>
 </html>

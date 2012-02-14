@@ -13,18 +13,11 @@ var splayer = function(selector) {
 splayer.prototype = {
 	center: function () {
 		for(image in this.list.images) {
-			this.list.images[image].node.style.top = ((this.list.height - this.list.images[image].height) / 2) + "px";
+			this.list.images[image].start_top = ((this.list.height - this.list.images[image].height) / 2);
 			this.list.images[image].start_position = Math.floor((this.list.width - this.list.images[image].width) / 2);
-			this.list.images[image].left = this.list.images[image].start_position;
 			this.list.images[image].hover_position += this.list.images[image].start_position;
 			
-			var image_int = parseInt(image, 10)
-			if (0 === image_int) {
-				this.list.images[image].open_position += this.list.images[image].start_position;
-			}
-			else {
-				this.list.images[image].open_position = this.list.images[(image_int - 1)].width + 10 + this.list.images[(image_int - 1)].open_position;
-			}
+			this.list.images[image].node.style.top = this.list.images[image].start_top + "px";
 			this.list.images[image].node.style.left = this.list.images[image].start_position + "px";
 		}
 	},
@@ -47,13 +40,21 @@ splayer.prototype = {
 	click_handle: function () {
 		if (!this.list.expanded) {
 			this.list.expanded = true;
+			this.list.node.className = "splayer expanded";
+			
 			for (image in this.list.images) {
-				this.list.images[image].node.style.left = this.list.images[image].open_position + "px";
+				this.list.images[image].node.style.zIndex = "9999";
+				this.list.images[image].node.style.top = (50 - this.list.node.offsetTop) + "px";
+				this.list.images[image].node.style.left = this.list.images[image].open_position - this.list.node.offsetLeft + "px";
 			}
 		}
 		else {
 			this.list.expanded = false;
+			this.list.node.className = "splayer";
+			
 			for (image in this.list.images) {
+				this.list.images[image].node.style.zIndex = this.list.images[image].z_index;
+				this.list.images[image].node.style.top = this.list.images[image].start_top + "px";
 				this.list.images[image].node.style.left = this.list.images[image].start_position + "px";
 			}
 		}
@@ -62,7 +63,7 @@ splayer.prototype = {
 		var that = this,
 			images = [],
 			child_lis = this.list.node.getElementsByTagName("li"),
-			full_offset = 0;
+			full_offset = 50;
 		
 		this.list.node.className = "splayer";
 		
@@ -93,15 +94,15 @@ splayer.prototype = {
 				height: images[i].offsetHeight,
 				width: images[i].offsetWidth,
 				area: images[i].offsetHeight * images[i].offsetWidth,
-				left: 0,
 				z_index: 9999 - Math.floor((images[i].offsetHeight * images[i].offsetWidth) / 1000),
-				animating: false,
+				start_top: 0,
 				start_position: 0,
 				hover_position: i * 5,
 				open_position: full_offset
 			};
 			
 			this.list.images[i].node.style.zIndex = this.list.images[i].z_index;
+			
 			this.list.height = (this.list.height < this.list.images[i].height) ? this.list.images[i].height : this.list.height;
 			this.list.width = (this.list.width < this.list.images[i].width) ? this.list.images[i].width : this.list.width;
 			
@@ -111,7 +112,7 @@ splayer.prototype = {
 		this.list.node.style.height = this.list.height + "px";
 		this.list.node.style.width = this.list.width + "px";
 		
-		this.center();
+		this.center();			
 		
 		this.list.node.addEventListener("mouseover", function () {
 			that.roll_in();
