@@ -63,13 +63,13 @@ splayer.prototype = {
 			
 			this.list.mask.style.height = this.list.open_height + "px";
 			this.list.mask.style.width = this.win.width + "px";
-			this.list.mask.style.top = (10 - this.list.node.offsetTop) + "px";
+			this.list.mask.style.top = (window.pageYOffset + 10 - this.list.node.offsetTop) + "px";
 			this.list.mask.style.left = (10 - this.list.node.offsetLeft) + "px";
 			this.list.mask.style.background = "rgba(0,0,0,.5)";
 			
 			for (image in this.list.images) {
 				var xtra_space = (this.win.width - this.list.top_offset.rows[this.list.images[image].row].width) / 2;
-				this.list.images[image].node.style.top = (50 + this.list.images[image].open_top - this.list.node.offsetTop) + "px";
+				this.list.images[image].node.style.top = (window.pageYOffset + 50 + this.list.images[image].open_top - this.list.node.offsetTop) + "px";
 				this.list.images[image].node.style.left = this.list.images[image].open_position - this.list.node.offsetLeft + xtra_space + "px";
 			}
 		}
