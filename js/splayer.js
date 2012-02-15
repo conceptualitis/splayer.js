@@ -14,6 +14,7 @@ var splayer = function(selector) {
 			total: 0,
 			rows: {
 				0: {
+					height: 0,
 					width: 0
 				}
 			}
@@ -28,7 +29,7 @@ splayer.prototype = {
 			this.list.images[image].start_top = ((this.list.height - this.list.images[image].height) / 2);
 			this.list.images[image].start_position = Math.floor((this.list.width - this.list.images[image].width) / 2);
 			this.list.images[image].hover_position += this.list.images[image].start_position;
-			this.list.images[image].open_top += this.list.images[image].start_top;
+			this.list.images[image].open_top += ((this.list.top_offset.rows[this.list.images[image].row].height - this.list.images[image].height) / 2);
 			
 			this.list.images[image].node.style.top = this.list.images[image].start_top + "px";
 			this.list.images[image].node.style.left = this.list.images[image].start_position + "px";
@@ -68,7 +69,7 @@ splayer.prototype = {
 			
 			for (image in this.list.images) {
 				var xtra_space = (this.win.width - this.list.top_offset.rows[this.list.images[image].row].width) / 2;
-				this.list.images[image].node.style.top = (50 - this.list.node.offsetTop + this.list.images[image].open_top) + "px";
+				this.list.images[image].node.style.top = (50 + this.list.images[image].open_top - this.list.node.offsetTop) + "px";
 				this.list.images[image].node.style.left = this.list.images[image].open_position - this.list.node.offsetLeft + xtra_space + "px";
 			}
 		}
@@ -126,7 +127,8 @@ splayer.prototype = {
 				this.list.top_offset.current_row += 1;
 				this.list.top_offset.rows[this.list.top_offset.current_row] = {};
 				this.list.top_offset.rows[this.list.top_offset.current_row].width = 0;
-				full_offset = 50;
+				this.list.top_offset.rows[this.list.top_offset.current_row].height = 0;
+				full_offset = 0;
 			}
 		
 			this.list.images[i] = {
@@ -144,10 +146,8 @@ splayer.prototype = {
 				row: this.list.top_offset.current_row
 			};
 			
-			//this.list.mask.appendChild(this.list.images[i].node.parentElement);
-			
 			this.list.images[i].node.style.zIndex = this.list.images[i].z_index;
-			this.list.top_offset.rows[this.list.top_offset.current_row].height = (this.list.height < this.list.images[i].height) ? this.list.images[i].height : this.list.height;
+			this.list.top_offset.rows[this.list.top_offset.current_row].height = (this.list.top_offset.rows[this.list.top_offset.current_row].height < this.list.images[i].height) ? this.list.images[i].height	: this.list.top_offset.rows[this.list.top_offset.current_row].height;
 			this.list.top_offset.rows[this.list.top_offset.current_row].width += parseInt(this.list.images[i].width,10) + 10;
 			this.list.height = (this.list.height < this.list.images[i].height) ? this.list.images[i].height : this.list.height;
 			this.list.width = (this.list.width < this.list.images[i].width) ? this.list.images[i].width : this.list.width;
