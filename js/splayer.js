@@ -41,6 +41,7 @@ splayer.prototype = {
 	click_handle: function () {
 		if (!this.list.expanded) {
 			this.list.expanded = true;
+			this.list.node.style.zIndex = "9999";
 			this.list.node.className = "splayer expanded";
 			
 			this.list.mask.style.height = (this.list.height + 80) + "px";
@@ -50,13 +51,13 @@ splayer.prototype = {
 			this.list.mask.style.background = "rgba(0,0,0,.5)";
 			
 			for (image in this.list.images) {
-				this.list.images[image].node.style.zIndex = "9999";
 				this.list.images[image].node.style.top = (50 - this.list.node.offsetTop + this.list.images[image].start_top) + "px";
 				this.list.images[image].node.style.left = this.list.images[image].open_position - this.list.node.offsetLeft + "px";
 			}
 		}
 		else {
 			this.list.expanded = false;
+			this.list.node.style.zIndex = "auto";
 			this.list.node.className = "splayer";
 			
 			this.list.mask.style.height = this.list.height + "px";
