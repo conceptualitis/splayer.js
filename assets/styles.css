@@ -38,6 +38,25 @@ ul {
 	position:relative;
 	cursor:pointer;
 }
+.splayer li.mask {
+	position:absolute;
+	background:rgba(0,0,0,0);
+	left:0;
+	top:0;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	
+	transition-property:left, top, background, width;
+	transition-duration:.3s;
+	transition-timing-function:ease-out;
+	-moz-transition-property:left, top, background, width;
+	-moz-transition-duration:.3s;
+	-moz-transition-timing-function:ease-out;
+	-webkit-transition-property:left, top, background, width;
+	-webkit-transition-duration:.3s;
+	-webkit-transition-timing-function:ease-out;
+}
 .splayer li img {
 	position:absolute;
 	left:0;

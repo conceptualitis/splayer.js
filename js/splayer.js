@@ -3,6 +3,7 @@ var splayer = function(selector) {
 	this.list = {
 		node: document.querySelector(selector),
 		images: {},
+		mask: document.createElement("li"),
 		expanded: false,
 		height: 0,
 		width: 0
@@ -42,15 +43,27 @@ splayer.prototype = {
 			this.list.expanded = true;
 			this.list.node.className = "splayer expanded";
 			
+			this.list.mask.style.height = (this.list.height + 80) + "px";
+			this.list.mask.style.width = (this.win.width - 35) + "px";
+			this.list.mask.style.top = (10 - this.list.node.offsetTop) + "px";
+			this.list.mask.style.left = (10 - this.list.node.offsetLeft) + "px";
+			this.list.mask.style.background = "rgba(0,0,0,.5)";
+			
 			for (image in this.list.images) {
 				this.list.images[image].node.style.zIndex = "9999";
-				this.list.images[image].node.style.top = (50 - this.list.node.offsetTop) + "px";
+				this.list.images[image].node.style.top = (50 - this.list.node.offsetTop + this.list.images[image].start_top) + "px";
 				this.list.images[image].node.style.left = this.list.images[image].open_position - this.list.node.offsetLeft + "px";
 			}
 		}
 		else {
 			this.list.expanded = false;
 			this.list.node.className = "splayer";
+			
+			this.list.mask.style.height = this.list.height + "px";
+			this.list.mask.style.width = this.list.width + "px";
+			this.list.mask.style.top = "0px";
+			this.list.mask.style.left = "0px";
+			this.list.mask.style.background = "rgba(0,0,0,0)";
 			
 			for (image in this.list.images) {
 				this.list.images[image].node.style.zIndex = this.list.images[image].z_index;
@@ -64,6 +77,8 @@ splayer.prototype = {
 			images = [],
 			child_lis = this.list.node.getElementsByTagName("li"),
 			full_offset = 50;
+		
+		this.win.width = window.innerWidth;
 		
 		this.list.node.className = "splayer";
 		
@@ -101,6 +116,8 @@ splayer.prototype = {
 				open_position: full_offset
 			};
 			
+			//this.list.mask.appendChild(this.list.images[i].node.parentElement);
+			
 			this.list.images[i].node.style.zIndex = this.list.images[i].z_index;
 			
 			this.list.height = (this.list.height < this.list.images[i].height) ? this.list.images[i].height : this.list.height;
@@ -109,6 +126,10 @@ splayer.prototype = {
 			full_offset += (this.list.images[i].width + 10);
 		}
 		
+		this.list.node.appendChild(this.list.mask);
+		this.list.mask.className = "mask";
+		this.list.mask.style.height = this.list.height + "px";
+		this.list.mask.style.width = this.list.width + "px";
 		this.list.node.style.height = this.list.height + "px";
 		this.list.node.style.width = this.list.width + "px";
 		
