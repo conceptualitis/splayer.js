@@ -7,9 +7,13 @@ body {
 }
 h1#page-title {
 	text-align:center;
-	padding:15px 0 20px;
-	text-shadow:0 -2px 0 #000;
-	font-weight:500;
+	padding:0;
+	width:320px;
+	height:150px;
+	margin:0 auto 10px;
+	text-indent:-9999px;
+	overflow:hidden;
+	background:transparent url("splayer.png") top center no-repeat;
 }
 #wrapper {
 	width:900px;
