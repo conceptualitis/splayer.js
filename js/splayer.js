@@ -97,10 +97,10 @@ splayer.prototype = {
 		var that = this,
 			images = [],
 			child_lis = this.list.node.getElementsByTagName("li"),
-			full_offset = 0;
+			full_offset = 0,
+			hover_multiplier = 5;
 		
 		this.win.width = window.innerWidth - 35;
-		
 		this.list.node.className = "splayer";
 		
 		//Extract our images into an array for sorting
@@ -132,6 +132,8 @@ splayer.prototype = {
 				this.rows.row[this.rows.current_row].height = 0;
 				full_offset = 0;
 			}
+			
+			hover_multiplier = (0 !== i%2) ? -2 : 2;
 		
 			this.images[i] = {
 				node: images[i],
@@ -143,7 +145,7 @@ splayer.prototype = {
 				start_top: 0,
 				open_top: this.rows.total,
 				start_position: 0,
-				hover_position: i * 5,
+				hover_position: i * hover_multiplier,
 				open_position: full_offset,
 				row: this.rows.current_row
 			};
