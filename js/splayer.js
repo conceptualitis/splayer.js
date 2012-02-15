@@ -2,7 +2,6 @@ var splayer = function(selector) {
 	this.win = {};
 	this.list = {
 		node: document.querySelector(selector),
-		mask: document.createElement("li"),
 		expanded: false,
 		height: 0,
 		open_height: 0,
@@ -18,6 +17,9 @@ var splayer = function(selector) {
 				width: 0
 			}
 		}
+	};
+	this.mask = {
+		node: document.createElement("li")
 	};
 	
 	this.init();
@@ -62,11 +64,11 @@ splayer.prototype = {
 			this.list.node.style.zIndex = "9999";
 			this.list.node.className = "splayer expanded";
 			
-			this.list.mask.style.height = this.list.open_height + "px";
-			this.list.mask.style.width = this.win.width + "px";
-			this.list.mask.style.top = (window.pageYOffset + 10 - this.list.node.offsetTop) + "px";
-			this.list.mask.style.left = (10 - this.list.node.offsetLeft) + "px";
-			this.list.mask.style.background = "rgba(0,0,0,.5)";
+			this.mask.node.style.cssText = "height:" + this.list.open_height + "px;" +
+				"width:" + this.win.width + "px;" + 
+				"top:" + (window.pageYOffset + 10 - this.list.node.offsetTop) + "px;" + 
+				"left:" + (10 - this.list.node.offsetLeft) + "px;" +
+				"background:rgba(0,0,0,.5);";
 			
 			for (image in this.images) {
 				this.images[image].node.style.top = window.pageYOffset + this.images[image].open_top + "px";
@@ -78,11 +80,11 @@ splayer.prototype = {
 			this.list.node.style.zIndex = "auto";
 			this.list.node.className = "splayer";
 			
-			this.list.mask.style.height = this.list.height + "px";
-			this.list.mask.style.width = this.list.width + "px";
-			this.list.mask.style.top = "0px";
-			this.list.mask.style.left = "0px";
-			this.list.mask.style.background = "rgba(0,0,0,0)";
+			this.mask.node.style.cssText = "height:" + this.list.height + "px;" +
+				"width:" + this.list.width + "px;" + 
+				"top:0px;" + 
+				"left:0px;" +
+				"background:rgba(0,0,0,0);";
 			
 			for (image in this.images) {
 				this.images[image].node.style.zIndex = this.images[image].z_index;
@@ -155,10 +157,10 @@ splayer.prototype = {
 			full_offset += (this.images[i].width + 10);
 		}
 		
-		this.list.node.appendChild(this.list.mask);
-		this.list.mask.className = "mask";
-		this.list.mask.style.height = this.list.height + "px";
-		this.list.mask.style.width = this.list.width + "px";
+		this.list.node.appendChild(this.mask.node);
+		this.mask.node.className = "mask";
+		this.mask.node.style.height = this.list.height + "px";
+		this.mask.node.style.width = this.list.width + "px";
 		this.list.node.style.height = this.list.height + "px";
 		this.list.node.style.width = this.list.width + "px";
 		
