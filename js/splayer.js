@@ -36,6 +36,7 @@ splayer.prototype = {
 			
 			this.images[image].node.style.top = this.images[image].start_top + "px";
 			this.images[image].node.style.left = this.images[image].start_position + "px";
+			this.images[image].node.style.visibility = this.images[image].visibility;
 		}
 		for (row in this.rows.row) {
 			this.list.open_height += this.rows.row[row].height + 10;
@@ -73,6 +74,7 @@ splayer.prototype = {
 			for (image in this.images) {
 				this.images[image].node.style.top = window.pageYOffset + this.images[image].open_top + "px";
 				this.images[image].node.style.left = this.images[image].open_position + "px";
+				this.images[image].node.style.visibility = "visible";
 			}
 		}
 		else {
@@ -90,6 +92,7 @@ splayer.prototype = {
 				this.images[image].node.style.zIndex = this.images[image].z_index;
 				this.images[image].node.style.top = this.images[image].start_top + "px";
 				this.images[image].node.style.left = this.images[image].start_position + "px";
+				this.images[image].node.style.visibility = this.images[image].visibility;
 			}
 		}
 	},
@@ -147,7 +150,8 @@ splayer.prototype = {
 				start_position: 0,
 				hover_position: i * hover_multiplier,
 				open_position: full_offset,
-				row: this.rows.current_row
+				row: this.rows.current_row,
+				visibility: (5 <= i) ? "hidden" : "visible"
 			};
 			
 			this.images[i].node.style.zIndex = this.images[i].z_index;
