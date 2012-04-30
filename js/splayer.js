@@ -98,7 +98,7 @@ splayer.prototype = {
 			images = [],
 			child_lis = this.list.node.getElementsByTagName("li"),
 			full_offset = 0,
-			hover_multiplier = 5;
+			hover_multiplier = 2;
 		
 		this.win.width = window.innerWidth - 35;
 		this.list.node.className = "splayer";
@@ -133,7 +133,7 @@ splayer.prototype = {
 				full_offset = 0;
 			}
 			
-			hover_multiplier = (0 !== i%2) ? -2 : 2;
+			hover_multiplier += 2;
 		
 			this.images[i] = {
 				node: images[i],
