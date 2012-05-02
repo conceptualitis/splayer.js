@@ -28,16 +28,18 @@ var splayer = function(selector) {
 splayer.prototype = {
 	center: function () {
 		for(image in this.images) {
-			this.images[image].start_top = ((this.list.height - this.images[image].height) / 2);
-			this.images[image].start_position = Math.floor((this.list.width - this.images[image].width) / 2);
-			this.images[image].hover_position += this.images[image].start_position;
-			this.images[image].open_top = this.images[image].open_top +	((this.rows.row[this.images[image].row].height - this.images[image].height) / 2) + 50 - this.list.node.offsetTop;
-			this.images[image].open_position = this.images[image].open_position - this.list.node.offsetLeft + ((this.win.width - this.rows.row[this.images[image].row].width) / 2);
+			var thisImage = this.images[image];
+		
+			thisImage.start_top = ((this.list.height - thisImage.height) / 2);
+			thisImage.start_position = Math.floor((this.list.width - thisImage.width) / 2);
+			thisImage.hover_position += thisImage.start_position;
+			thisImage.open_top = thisImage.open_top + ((this.rows.row[thisImage.row].height - thisImage.height) / 2) + 50 - this.list.node.offsetTop;
+			thisImage.open_position = thisImage.open_position - this.list.node.offsetLeft + ((this.win.width - this.rows.row[thisImage.row].width) / 2);
 
 			
-			this.images[image].node.style.top = this.images[image].start_top + "px";
-			this.images[image].node.style.left = this.images[image].start_position + "px";
-			this.images[image].node.style.visibility = this.images[image].visibility;
+			thisImage.node.style.top = thisImage.start_top + "px";
+			thisImage.node.style.left = thisImage.start_position + "px";
+			thisImage.node.style.visibility = thisImage.visibility;
 		}
 		for (row in this.rows.row) {
 			this.list.open_height += this.rows.row[row].height + 10;
@@ -75,10 +77,12 @@ splayer.prototype = {
 				"left:" + (10 - this.list.node.offsetLeft) + "px;" +
 				"background:rgba(0,0,0,.5);";
 			
-			for (image in this.images) {
-				this.images[image].node.style.top = window.pageYOffset + this.images[image].open_top + "px";
-				this.images[image].node.style.left = this.images[image].open_position + "px";
-				this.images[image].node.style.visibility = "visible";
+			for (image in this.images) {				
+				this.images[image].node.style.cssText =
+					"z-index:" + this.images[image].z_index + ";" +
+					"top:" + (window.pageYOffset + this.images[image].open_top) + "px;" +
+					"left:" + this.images[image].open_position + "px;" +
+					"visibility:" + this.images[image].visibility;
 			}
 		}
 		else {
@@ -93,25 +97,49 @@ splayer.prototype = {
 				"background:rgba(0,0,0,0);";
 			
 			for (image in this.images) {
-				this.images[image].node.style.zIndex = this.images[image].z_index;
-				this.images[image].node.style.top = this.images[image].start_top + "px";
-				this.images[image].node.style.left = this.images[image].start_position + "px";
-				this.images[image].node.style.visibility = this.images[image].visibility;
+				this.images[image].node.style.cssText =
+					"z-index:" + this.images[image].z_index + ";" +
+					"top:" + this.images[image].start_top + "px;" +
+					"left:" + this.images[image].start_position + "px;" +
+					"visibility:" + this.images[image].visibility;
 			}
 		}
 	},
+	generateStyles: function () {
+		var head = document.getElementsByTagName('head')[0],
+			style = document.createElement('style'),
+			rules = document.createTextNode(
+				".splayer { padding:0; list-style:none; list-style:none; position:relative; cursor:pointer; }" +
+				".splayer li.mask { position:absolute; background:rgba(0,0,0,0); left:0; top:0; border-radius:10px; -moz-border-radius:10px; -webkit-border-radius:10px; transition-duration:.3s; transition-timing-function:ease-out; -moz-transition-property:left, top, background, width; -moz-transition-duration:.3s; -moz-transition-timing-function:ease-out; -webkit-transition-property:left, top, background, width;	-webkit-transition-duration:.3s; -webkit-transition-timing-function:ease-out; }" +
+				".splayer li img { position:absolute; left:0; box-shadow:0 0 5px rgba(0,0,0,.25); background:#fff; padding:5px; transition-property:left, top; transition-duration:.1s; transition-timing-function:ease-out; -moz-transition-property:left, top; -moz-transition-duration:.1s; -moz-transition-timing-function:ease-out; -webkit-transition-property:left, top; -webkit-transition-duration:.1s; -webkit-transition-timing-function:ease-out; }" +
+				".splayer.expanded li img { transition-duration:.3s; -moz-transition-duration:.3s; -webkit-transition-duration:.3s; }"
+			);
+		
+		style.type = 'text/css';
+		
+		if (style.styleSheet) {
+			style.styleSheet.cssText = rules.nodeValue;
+		}
+		else {
+			style.appendChild(rules);
+		}
+		
+		head.appendChild(style);	
+	},
 	init: function () {
+		this.generateStyles();
+		
 		var that = this,
 			images = [],
-			child_lis = this.list.node.getElementsByTagName("li"),
+			image_nodes = this.list.node.getElementsByTagName("img"),
 			hover_multiplier = 2;
 		
 		this.win.width = window.innerWidth - 35;
 		this.list.node.className = "splayer";
 		
 		//Extract our images into an array for sorting
-		for (var x = 0; x < child_lis.length; x++) {
-			images[x] = child_lis[x].getElementsByTagName("img")[0];
+		for (var x = 0; x < image_nodes.length; x++) {
+			images[x] = image_nodes[x];
 		}
 		
 		//	Sort children by future z-index so they'll animate in the appropriate order
