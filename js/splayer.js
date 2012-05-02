@@ -21,6 +21,7 @@ var splayer = function(selector) {
 	this.mask = {
 		node: document.createElement("li")
 	};
+	this.length = 0;
 	
 	this.init();
 };
@@ -43,20 +44,23 @@ splayer.prototype = {
 		}
 		this.list.open_height += 80;
 	},
+	fan: function (finalPosition) {
+		var loops = (6 > this.length) ? this.length : 6;
+	
+		for (var i = 0; i < loops; i++) {
+			this.images[i].node.style.left = this.images[i][finalPosition] + "px";
+		}
+	},
 	roll_in: function () {
 		if (!this.list.expanded) {
 			this.list.node.style.zIndex = "9999";
-			for (image in this.images) {
-				this.images[image].node.style.left = this.images[image].hover_position + "px";
-			}
+			this.fan("hover_position");
 		}
 	},
 	roll_out: function () {
 		if (!this.list.expanded) {
 			this.list.node.style.zIndex = "auto";
-			for (image in this.images) {
-				this.images[image].node.style.left = this.images[image].start_position + "px";
-			}
+			this.fan("start_position");
 		}
 	},
 	click_handle: function () {
@@ -100,7 +104,6 @@ splayer.prototype = {
 		var that = this,
 			images = [],
 			child_lis = this.list.node.getElementsByTagName("li"),
-			full_offset = 0,
 			hover_multiplier = 2;
 		
 		this.win.width = window.innerWidth - 35;
@@ -115,10 +118,11 @@ splayer.prototype = {
 		images.sort(function (a, b) {
 			var a_z_index = 9999 - Math.floor((a.offsetHeight * a.offsetWidth) / 1000),
 				b_z_index = 9999 - Math.floor((b.offsetHeight * b.offsetWidth) / 1000);
+			
 			if (a_z_index < b_z_index) {
 				return 1;
 			}
-			if (a_z_index > b_z_index) {
+			else if (a_z_index > b_z_index) {
 				return -1;
 			}
 			// If the z-indexes are the same we actually want to return 1 to ensure the
@@ -126,21 +130,20 @@ splayer.prototype = {
 			return 1;
 		});
 		
-		for (var i = 0; i < images.length; i++) {
-			if ((full_offset + images[i].offsetWidth) > (this.win.width - 120)) {
+		for (var i = 0; i < images.length; i++) {		
+			if ((this.rows.row[this.rows.current_row].width + images[i].offsetWidth) > (this.win.width - 120)) {
 				this.rows.total += this.rows.row[this.rows.current_row].height + 10;
 				this.rows.current_row += 1;
-				this.rows.row[this.rows.current_row] = {};
-				this.rows.row[this.rows.current_row].width = 0;
-				this.rows.row[this.rows.current_row].height = 0;
-				full_offset = 0;
+				this.rows.row[this.rows.current_row] = {
+					width: 0,
+					height: 0
+				};
 			}
 			
 			hover_multiplier += 2;
 		
 			this.images[i] = {
 				node: images[i],
-				parent: images[i].parentElement,
 				height: images[i].offsetHeight,
 				width: images[i].offsetWidth,
 				area: images[i].offsetHeight * images[i].offsetWidth,
@@ -149,20 +152,22 @@ splayer.prototype = {
 				open_top: this.rows.total,
 				start_position: 0,
 				hover_position: i * hover_multiplier,
-				open_position: full_offset,
+				open_position: this.rows.row[this.rows.current_row].width,
 				row: this.rows.current_row,
-				visibility: (5 <= i) ? "hidden" : "visible"
+				visibility: (6 < i) ? "hidden" : "visible"
 			};
 			
 			this.images[i].node.style.zIndex = this.images[i].z_index;
 			this.rows.row[this.rows.current_row].height = (this.rows.row[this.rows.current_row].height < this.images[i].height) ? this.images[i].height	: this.rows.row[this.rows.current_row].height;
 			this.rows.row[this.rows.current_row].width += parseInt(this.images[i].width,10) + 10;
-			this.list.height = (this.list.height < this.images[i].height) ? this.images[i].height : this.list.height;
-			this.list.width = (this.list.width < this.images[i].width) ? this.images[i].width : this.list.width;
 			
-			full_offset += (this.images[i].width + 10);
+			if (6 > i) {
+				this.list.height = (this.list.height < this.images[i].height) ? this.images[i].height : this.list.height;
+				this.list.width = (this.list.width < this.images[i].width) ? this.images[i].width : this.list.width;
+			}
 		}
 		
+		this.length = i;
 		this.list.node.appendChild(this.mask.node);
 		this.mask.node.className = "mask";
 		this.mask.node.style.height = this.list.height + "px";
